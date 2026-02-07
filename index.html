@@ -35,9 +35,7 @@
             max-width: 420px;
         }
 
-        h1 {
-            color: #c2185b;
-        }
+        h1 { color: #c2185b; }
 
         p {
             font-size: 18px;
@@ -47,7 +45,7 @@
         .botones {
             margin-top: 30px;
             position: relative;
-            height: 120px;
+            height: 160px;
         }
 
         button {
@@ -71,9 +69,8 @@
         #no {
             background-color: #ccc;
             color: #333;
-            left: calc(50% - 160px);
-            top: 50%;
-            transform: translateY(-50%);
+            left: 20px;
+            top: 20px;
         }
     </style>
 </head>
@@ -91,7 +88,7 @@
         y un San Valentín especial 🌹🌷
     </p>
 
-    <div class="botones">
+    <div class="botones" id="zona">
         <button id="si" onclick="aceptar()">Sí 💕</button>
         <button id="no">No 😢</button>
     </div>
@@ -99,22 +96,51 @@
 
 <script>
     const btnNo = document.getElementById("no");
+    const btnSi = document.getElementById("si");
+    const zona = document.getElementById("zona");
 
     function vibrar() {
         if (navigator.vibrate) {
-            navigator.vibrate(120); // duración de la vibración
+            navigator.vibrate(120);
         }
+    }
+
+    function colisiona(x, y) {
+        const noRect = {
+            left: x,
+            top: y,
+            right: x + btnNo.offsetWidth,
+            bottom: y + btnNo.offsetHeight
+        };
+
+        const siRect = btnSi.getBoundingClientRect();
+        const zonaRect = zona.getBoundingClientRect();
+
+        return !(
+            noRect.right < siRect.left - zonaRect.left ||
+            noRect.left > siRect.right - zonaRect.left ||
+            noRect.bottom < siRect.top - zonaRect.top ||
+            noRect.top > siRect.bottom - zonaRect.top
+        );
     }
 
     function huir() {
         vibrar();
 
-        const distancia = 160;
-        const lado = Math.random() < 0.5 ? -1 : 1;
+        const maxX = zona.clientWidth - btnNo.offsetWidth;
+        const maxY = zona.clientHeight - btnNo.offsetHeight;
 
-        btnNo.style.left = `calc(50% + ${lado * distancia}px)`;
-        btnNo.style.top = "50%";
-        btnNo.style.transform = "translateY(-50%)";
+        let x, y;
+        let intentos = 0;
+
+        do {
+            x = Math.random() * maxX;
+            y = Math.random() * maxY;
+            intentos++;
+        } while (colisiona(x, y) && intentos < 50);
+
+        btnNo.style.left = x + "px";
+        btnNo.style.top = y + "px";
     }
 
     // PC
